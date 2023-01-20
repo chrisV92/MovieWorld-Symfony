@@ -1,0 +1,54 @@
+{# templates/login/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{# ... #}
+
+{% block body %}
+    {% if error %}
+        <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    <div class="container">
+        <div class="row py-5">
+
+            <div class="col-6 offset-3">
+                <div class="row pb-3">
+                    <div class="h2">Login</div>
+                </div>
+                <form action="{{ path('app_login') }}" method="post">
+                    <!-- Email input -->
+                    <div class="form-outline mb-4">
+                        <input type="text" id="username" name="_username" value="{{ last_username }}" class="form-control" />
+                        <label class="form-label" for="form2Example1">Email address</label>
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="form-outline mb-4">
+                        <input type="password" id="password" name="_password" class="form-control" />
+                        <label class="form-label" for="form2Example2">Password</label>
+                    </div>
+
+                    <!-- 2 column grid layout for inline styling -->
+                    <div class="row mb-4">
+                        <div class="col d-flex justify-content-center">
+                            <!-- Checkbox -->
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="form2Example31" checked />
+                                <label class="form-check-label" for="form2Example31"> Remember me </label>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <!-- Simple link -->
+                            <a href="#!">Forgot password?</a>
+                        </div>
+                    </div>
+
+                    <!-- Submit button -->
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                    <button type="submit" type="submit" class="btn btn-primary btn-block mb-4 text-right">Sign in</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
