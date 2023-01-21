@@ -14,6 +14,40 @@
         {% endblock %}
     </head>
     <body>
-        {% block body %}{% endblock %}
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand mx-3" href="{{ path('app_home') }}">MoviesWorld</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto mx-3">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ path('app_home') }}">Home </a>
+                </li>
+                <li class="nav-item">
+
+                    {% if app.user %}
+                        <a class="nav-link" href="{{ path('app_logout') }}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                             <strong>Hi, {{ app.user.getFirstName}} {{ app.user.getLastName}}</strong> (Logout)
+                        </a>
+                    {% else %}
+                    <a class="nav-link" href="{{ path('app_login') }}">Login</a>
+                    {% endif %}
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+    {% block body %}{% endblock %}
+    {% block javascript %}
+    <script
+            src="https://code.jquery.com/jquery-3.6.3.min.js"
+            integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+            crossorigin="anonymous"></script>
+
+    {% endblock %}
     </body>
+
 </html>

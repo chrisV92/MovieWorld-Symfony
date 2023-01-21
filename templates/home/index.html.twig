@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+
+    <div class="example-wrapper">
+        {% if movie_list %}
+            <div class="row">
+                <div class="col-6">
+                    Found {{ movie_list | length }} Movies
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-6">
+                            <select id="filter" class="form-select" aria-label="Default select example">
+                                <option selected>Filter By</option>
+                                <option value="likes">Likes</option>
+                                <option value="hates">Hates</option>
+                                <option value="created_at">Date</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <select id="sort_by" class="form-select" aria-label="Default select example">
+                                <option value="ASC" selected>Asc</option>
+                                <option value="DESC">Desc</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="movie-list">
+                {% for movie in  movie_list %}
+                    <div class="card  my-3 movie">
+                        <div class="card-body">
+                            <div class="row pt-3 pb-3">
+                                <div class="col-9">
+                                    {{ movie.title }}
+                                </div>
+                                <div class="col-3 text-end">
+
+                                    <p class="small"> Posted {{ movie.created_at |date("d/m/Y") }}</p>
+
+                                </div>
+                            </div>
+                            <p class="h6"> {{ movie.description }}</p>
+                            <div class="row pt-3">
+                                <div class="col-6">
+                                    {% if(app.user) %}
+                                        <i class=" mx-2 fa-solid fa-thumbs-up text-success"></i> {{ movie.likes}} |</pre>
+                                        <i class="mx-2 fa-solid fa-thumbs-down text-danger"></i> {{ movie.dislikes }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="h6"> Posted By: <span
+                                                class="text-info">{{ movie.user.getFirstName() }} {{ movie.user.getLastName() }}  </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="h3 text-center pt-5">
+                There are no movies at this time.
+            </p>
+        {% endif %}
+
+    </div>
+{% endblock %}
+
+{% block javascript  %}
+<script>
+    $('document').ready(function(){
+
+    $('#filter').change(function () {
+        $.ajax({
+            type: 'get',
+            url: '/filters',
+            data: {
+                filter: $('#filter').val()
+            },
+            success: function (data) {
+                $("#movie-list").empty();
+
+
+                $.each(data, function (index, movie) {
+                    $("#movie-list").append(
+                        '<div class="card  my-3 movie">' +
+                        '                        <div class="card-body">' +
+                        '                            <div class="row pt-3 pb-3">' +
+                        '                                <div class="col-9">' +
+                        '                                     ' + movie.title + ' ' +
+                        '                                </div>' +
+                        '                                <div class="col-3 text-end">' +
+                        '                                    <p class="small"> Posted ' + movie.created_at + '</p>' +
+                        '' +
+                        '                                </div>' +
+                        '                            </div>' +
+                        '                            <p class="h6">  ' + movie.description + ' </p>' +
+                        '                            <div class="row pt-3">' +
+                        '                                <div class="col-6">' +
+                        '                                    {% if(app.user) %}'+
+                        '                                        <i class=" mx-2 fa-solid fa-thumbs-up text-success"></i> 0 |</pre>'+
+                        '                                        <i class="mx-2 fa-solid fa-thumbs-down text-danger"></i> 0'+
+                        '                                    {% endif %}'+
+                        '                                </div>'+
+                        '                                <div class="col-6 text-end">'+
+                        '                                    <p class="h6"> Posted By: <span'+
+                        '                                                class="text-info">'+ movie.user_first_name +  movie.user_last_name +'  </span>'+
+                        '                                    </p>'+
+                        '                                </div>'+
+                        '                            </div>'+
+                        '                        </div>'+
+                        ''+
+                        '                    </div>'
+
+               );
+             });
+          }
+        });
+      });
+
+        $('#sort_by').change(function () {
+        $.ajax({
+            type: 'get',
+            url: '/filters',
+            data: {
+                sort_by: $('#sort_by').val()
+            },
+            success: function (data) {
+                $("#movie-list").empty();
+
+
+                $.each(data, function (index, movie) {
+                    $("#movie-list").append(
+                        '<div class="card  my-3 movie">' +
+                        '                        <div class="card-body">' +
+                        '                            <div class="row pt-3 pb-3">' +
+                        '                                <div class="col-9">' +
+                        '                                     ' + movie.title + ' ' +
+                        '                                </div>' +
+                        '                                <div class="col-3 text-end">' +
+                        '                                    <p class="small"> Posted ' + movie.created_at + '</p>' +
+                        '' +
+                        '                                </div>' +
+                        '                            </div>' +
+                        '                            <p class="h6">  ' + movie.description + ' </p>' +
+                        '                            <div class="row pt-3">' +
+                        '                                <div class="col-6">' +
+                        '                                    {% if(app.user) %}'+
+                        '                                        <i class=" mx-2 fa-solid fa-thumbs-up text-success"></i> 0 |</pre>'+
+                        '                                        <i class="mx-2 fa-solid fa-thumbs-down text-danger"></i> 0'+
+                        '                                    {% endif %}'+
+                        '                                </div>'+
+                        '                                <div class="col-6 text-end">'+
+                        '                                    <p class="h6"> Posted By: <span'+
+                        '                                                class="text-info">'+ movie.user_first_name +  movie.user_last_name +'  </span>'+
+                        '                                    </p>'+
+                        '                                </div>'+
+                        '                            </div>'+
+                        '                        </div>'+
+                        ''+
+                        '                    </div>'
+
+               );
+             });
+          }
+        });
+      });
+});
+</script>
+{% endblock %}
+

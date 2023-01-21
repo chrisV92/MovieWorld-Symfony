@@ -19,7 +19,7 @@
                     <!-- Email input -->
                     <div class="form-outline mb-4">
                         <input type="text" id="username" name="_username" value="{{ last_username }}" class="form-control" />
-                        <label class="form-label" for="form2Example1">Email address</label>
+                        <label class="form-label" for="form2Example1">Username</label>
                     </div>
 
                     <!-- Password input -->
@@ -40,7 +40,7 @@
 
                         <div class="col">
                             <!-- Simple link -->
-                            <a href="#!">Forgot password?</a>
+                            <a href="{{ path('app_register') }}">Register</a>
                         </div>
                     </div>
 
