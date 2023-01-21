@@ -23,13 +23,23 @@ class HomeController extends AbstractController
 
         $votes = $doctrine->getRepository(Vote::class)->findAll();
 
-        $i = 0;
-        $j = 0;
-            foreach ($movie_list as $k => $movie) {
-                foreach ($votes as $key => $vote) {
+        $list = $this->GenerateList($movie_list, $votes);
 
-                if ($movie->getID() == $vote->getMovie()->getID())
-                {
+        return $this->render('home/index.html.twig', [
+            'movie_list' => $list,
+        ]);
+    }
+
+    private function GenerateList($movie_list, $votes)
+    {
+        $i = 0; //for Likes
+        $j = 0; //for Dislikes
+
+
+        foreach ($movie_list as $k => $movie) {
+            foreach ($votes as $key => $vote) {
+
+                if ($movie->getID() == $vote->getMovie()->getID()) {
 
                     if ($vote->getName() == 'Like') {
                         $i = $i + 1;
@@ -40,25 +50,23 @@ class HomeController extends AbstractController
                     }
 
                 }
-                    $list[$k] = [
-                        'id' => $movie->getID(),
-                        'title' => $movie->getTitle(),
-                        'description' => $movie->getDescription(),
-                        'likes' => $i,
-                        'dislikes' => $j,
-                        'user' => $movie->getUser(),
-                        'created_at' => $movie->getCreatedAt(),
-                    ];
+                $list[$k] = [
+                    'id' => $movie->getID(),
+                    'title' => $movie->getTitle(),
+                    'description' => $movie->getDescription(),
+                    'likes' => $i,
+                    'dislikes' => $j,
+                    'user' => $movie->getUser(),
+                    'created_at' => $movie->getCreatedAt(),
+                ];
 
 
             }
-                $i = 0;
-                $j = 0;
+            $i = 0;
+            $j = 0;
         }
 
-        return $this->render('home/index.html.twig', [
-            'movie_list' => $list,
-        ]);
+        return $list;
     }
 
     #[Route('/filters', name: 'movie_filters')]
@@ -66,15 +74,27 @@ class HomeController extends AbstractController
     {
 
         $filter = ($request->query->has('filter')) ? $request->query->get('filter') : 'created_at';
-        $sort_by = ($request->query->has('sort_by')) ? $request->query->get('sort_by') : 'ASC';
 
-        $movie_list = $doctrine->getRepository(Movie::class)
-            ->findBy(array(), [$filter => $sort_by]);
+        $movie_list = $doctrine->getRepository(Movie::class)->findAll();
+        $votes = $doctrine->getRepository(Vote::class)->findAll();
 
+        $list = $this->GenerateList($movie_list, $votes);
         $data = [];
-        foreach ($movie_list as $movie) {
-            $data[] = $movie->toArray();
+        foreach ($list as $key => $item) {
+            $data[$key] = [
+                'id' => $item['id'],
+                'title' => $item['title'],
+                'description' => $item['description'],
+                'user_first_name' => $this->getUser()->getFirstName(),
+                'user_last_name' => $this->getUser()->getLastName(),
+                'created_at' => Carbon::parse($item['created_at'])->format('d/m/Y'),
+                'likes' => $item['likes'],
+                'dislikes' => $item['dislikes'],
+            ];
         }
+
+        $key_array = array_column($data, $filter);
+        array_multisort($key_array, SORT_DESC , $data);
 
         return new JsonResponse($data);
     }

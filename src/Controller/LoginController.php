@@ -30,10 +30,11 @@ class LoginController extends AbstractController
     public function logout(Security $security): Response
     {
         // logout the user in on the current firewall
-        $response = $security->logout(false);
+        $security->logout(false);
 
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
+            'movie_list' => null
         ]);
     }
 }
