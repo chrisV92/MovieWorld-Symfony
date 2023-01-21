@@ -32,9 +32,7 @@ class LoginController extends AbstractController
         // logout the user in on the current firewall
         $security->logout(false);
 
-        return $this->render('home/index.html.twig', [
-            'controller_name' => 'HomeController',
-            'movie_list' => null
-        ]);
+
+        return $this->redirectToRoute('app_home');
     }
 }
