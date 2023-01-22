@@ -23,18 +23,25 @@
                 <div class="col-6">
                     Found {{ movie_list | length }} Movies
                 </div>
-                <div class="col-6">
-                    <div class="row">
-                        <div class="col-6 offset-6">
-                            <select id="filter" class="form-select" aria-label="Default select example">
-                                <option selected>Filter By</option>
-                                <option value="likes">Likes</option>
-                                <option value="dislikes">Hates</option>
-                                <option value="created_at">Date</option>
-                            </select>
+                {% if app.current_route  != 'movies_by_user' %}
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-6 offset-6">
+                                <select id="filter" class="form-select" aria-label="Default select example">
+                                    <option selected>Filter By</option>
+                                    <option value="likes">Likes</option>
+                                    <option value="dislikes">Hates</option>
+                                    <option value="created_at">Date</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% else %}
+                    <div class="col-6">
+                        <a href="{{ path('app_home') }}" class="btn btn-primary float-end">Back to All Movies</a>
+                    </div>
+                {% endif %}
+
             </div>
             <div id="movie-list">
                 {% for movie in  movie_list %}
@@ -54,13 +61,26 @@
                             <div class="row pt-3">
                                 <div class="col-6">
                                     {% if(app.user) %}
-                                        <i class=" mx-2 fa-solid fa-thumbs-up text-success"></i> {{ movie.likes}} |</pre>
-                                        <i class="mx-2 fa-solid fa-thumbs-down text-danger"></i> {{ movie.dislikes }}
+                                        {% if movie.user.getId() != app.user.getId() %}
+                                            <a href="#" class="nav-item text-success text-decoration-none"><i
+                                                        class=" mx-2 fa-solid fa-thumbs-up text-success"></i> {{ movie.likes }}
+                                            </a> |
+                                            <a href="#" class="nav-item text-danger text-decoration-none"><i
+                                                        class="mx-2 fa-solid fa-thumbs-down text-danger"></i> {{ movie.dislikes }}
+                                            </a>
+                                        {% else %}
+                                            <span class="nav-item text-success text-decoration-none"><i
+                                                        class=" mx-2 fa-solid fa-thumbs-up text-success"></i> {{ movie.likes }}
+                                            </span> |
+                                            <span class="nav-item text-danger text-decoration-none"><i
+                                                        class="mx-2 fa-solid fa-thumbs-down text-danger"></i> {{ movie.dislikes }}
+                                            </span>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                                 <div class="col-6 text-end">
-                                    <p class="h6"> Posted By: <span
-                                                class="text-info">{{ movie.user.getFirstName() }} {{ movie.user.getLastName() }}  </span>
+                                    <p class="h6"> Posted By: <a class="text-info"
+                                                                 href="{{ path('movies_by_user', {'user_id': movie.user.getId()}) }}">{{ movie.user.getFirstName() }} {{ movie.user.getLastName() }} </a>
                                     </p>
                                 </div>
                             </div>
@@ -95,6 +115,14 @@
 
 
                 $.each(data, function (index, movie) {
+                    var links = '';
+                    if (movie.same_user !== true) {
+                        links = '<a href="#" class="nav-item text-success text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-up text-success"></i>' + movie.likes + '</a> |' +
+                            '<a href="#" class="nav-item text-danger text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-down text-danger"></i>' + movie.dislikes + '</a>';
+                    } else {
+                        links = '<span class="nav-item text-success text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-up text-success"></i>' + movie.likes + '</span> |' +
+                            '<span class="nav-item text-danger text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-down text-danger"></i>' + movie.dislikes + '</span>';
+                    }
                     $("#movie-list").append(
                         '<div class="card  my-3 movie">' +
                         '                        <div class="card-body">' +
@@ -109,24 +137,19 @@
                         '                            </div>' +
                         '                            <p class="h6">  ' + movie.description + ' </p>' +
                         '                            <div class="row pt-3">' +
-                        '                                <div class="col-6">' +
-                        '                                    {% if(app.user) %}'+
-                        '                                        <i class=" mx-2 fa-solid fa-thumbs-up text-success"></i>'+ movie.likes +' |</pre>'+
-                        '                                        <i class="mx-2 fa-solid fa-thumbs-down text-danger"></i>'+ movie.dislikes +
-                        '                                    {% endif %}'+
-                        '                                </div>'+
-                        '                                <div class="col-6 text-end">'+
-                        '                                    <p class="h6"> Posted By: <span'+
-                        '                                                class="text-info">'+ movie.user_first_name +" " +  movie.user_last_name +'  </span>'+
-                        '                                    </p>'+
-                        '                                </div>'+
-                        '                            </div>'+
-                        '                        </div>'+
-                        ''+
+                        '                                <div class="col-6">' + links +
+                        '                                </div>' +
+                        '                                <div class="col-6 text-end">' +
+                        '                                    <p class="h6"> Posted By: <a' +
+                        '                                           href="/author/' + movie.user_id + '"      class="text-info">' + movie.user_first_name + " " + movie.user_last_name + '  </a>' +
+                        '                                    </p>' +
+                        '                                </div>' +
+                        '                            </div>' +
+                        '                        </div>' +
+                        '' +
                         '                    </div>'
-
-               );
-             });
+                    );
+                });
           }
         });
       });

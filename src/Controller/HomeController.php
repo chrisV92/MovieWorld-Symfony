@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Movie;
+use App\Entity\User;
 use App\Entity\Vote;
 use Carbon\Carbon;
 use Doctrine\Persistence\ManagerRegistry;
@@ -35,7 +36,7 @@ class HomeController extends AbstractController
         $i = 0; //for Likes
         $j = 0; //for Dislikes
 
-
+        $list = [];
         foreach ($movie_list as $k => $movie) {
             foreach ($votes as $key => $vote) {
 
@@ -81,33 +82,53 @@ class HomeController extends AbstractController
         $list = $this->GenerateList($movie_list, $votes);
         $data = [];
         foreach ($list as $key => $item) {
+            $user = $doctrine->getRepository(User::class)->find($item['user']);
+
             $data[$key] = [
                 'id' => $item['id'],
                 'title' => $item['title'],
                 'description' => $item['description'],
-                'user_first_name' => $this->getUser()->getFirstName(),
-                'user_last_name' => $this->getUser()->getLastName(),
+                'user_first_name' => $user->getFirstName(),
+                'user_last_name' =>$user->getLastName(),
+                'user_id' => $user->getId(),
                 'created_at' => Carbon::parse($item['created_at'])->format('d/m/Y'),
                 'likes' => $item['likes'],
                 'dislikes' => $item['dislikes'],
+                'same_user' => ($user->getId() == $this->getUser()->getID())? true : false
             ];
         }
 
         $key_array = array_column($data, $filter);
-        array_multisort($key_array, SORT_DESC , $data);
+        array_multisort($key_array, SORT_DESC, $data);
 
         return new JsonResponse($data);
+    }
+
+    #[Route('/author/{user_id}', name: 'movies_by_user')]
+    public function filterByUser($user_id,ManagerRegistry $doctrine): Response
+    {
+
+        $movieRepository = $doctrine->getRepository(Movie::class);
+        $movies = $movieRepository->findBy(['user' => $user_id]);
+        $votes = $doctrine->getRepository(Vote::class)->findAll();
+
+        $list = $this->GenerateList($movies, $votes);
+        return $this->render('home/index.html.twig', [
+            'movie_list' => $list,
+        ]);
     }
 
     #[Route('/positive_vote', name: 'positive_vote')]
     public function positiveVote(ManagerRegistry $doctrine, UserInterface $user): Response
     {
         $entityManager = $doctrine->getManager();
+
         $movie = $doctrine->getRepository(Movie::class)->find(array('id' => 1));
 
         $vote = new Vote();
         $vote->setMovie($movie);
         $vote->setName('Like');
+        $vote->setUserId($user);
 
         $entityManager->persist($vote);
         $entityManager->flush();

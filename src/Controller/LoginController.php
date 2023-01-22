@@ -15,10 +15,10 @@ class LoginController extends AbstractController
     {
 
         // get the login error if there is one
-                 $error = $authenticationUtils->getLastAuthenticationError();
+        $error = $authenticationUtils->getLastAuthenticationError();
 
-                 // last username entered by the user
-                 $lastUsername = $authenticationUtils->getLastUsername();
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('login/index.html.twig', [
             'last_username' => $lastUsername,
@@ -31,7 +31,6 @@ class LoginController extends AbstractController
     {
         // logout the user in on the current firewall
         $security->logout(false);
-
 
         return $this->redirectToRoute('app_home');
     }
