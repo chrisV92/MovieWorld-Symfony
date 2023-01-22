@@ -18,6 +18,13 @@
     </style>
 
     <div class="example-wrapper">
+        {% for label, messages in app.session.flashbag.all %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
         {% if movie_list %}
             <div class="row">
                 <div class="col-6">
@@ -62,10 +69,10 @@
                                 <div class="col-6">
                                     {% if(app.user) %}
                                         {% if movie.user.getId() != app.user.getId() %}
-                                            <a href="#" class="nav-item text-success text-decoration-none"><i
+                                            <a href="{{ path('movie_like', {'movie_id': movie.id}) }}" class="nav-item text-success text-decoration-none"><i
                                                         class=" mx-2 fa-solid fa-thumbs-up text-success"></i> {{ movie.likes }}
                                             </a> |
-                                            <a href="#" class="nav-item text-danger text-decoration-none"><i
+                                            <a href="{{ path('movie_dislike', {'movie_id': movie.id}) }}" class="nav-item text-danger text-decoration-none"><i
                                                         class="mx-2 fa-solid fa-thumbs-down text-danger"></i> {{ movie.dislikes }}
                                             </a>
                                         {% else %}
@@ -117,8 +124,8 @@
                 $.each(data, function (index, movie) {
                     var links = '';
                     if (movie.same_user !== true) {
-                        links = '<a href="#" class="nav-item text-success text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-up text-success"></i>' + movie.likes + '</a> |' +
-                            '<a href="#" class="nav-item text-danger text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-down text-danger"></i>' + movie.dislikes + '</a>';
+                        links = '<a href="/like/' + movie.id + '" class="nav-item text-success text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-up text-success"></i>' + movie.likes + '</a> |' +
+                            '<a href="/dislike/' + movie.id + '" class="nav-item text-danger text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-down text-danger"></i>' + movie.dislikes + '</a>';
                     } else {
                         links = '<span class="nav-item text-success text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-up text-success"></i>' + movie.likes + '</span> |' +
                             '<span class="nav-item text-danger text-decoration-none"><i class=" mx-2 fa-solid fa-thumbs-down text-danger"></i>' + movie.dislikes + '</span>';

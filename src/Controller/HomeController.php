@@ -89,12 +89,12 @@ class HomeController extends AbstractController
                 'title' => $item['title'],
                 'description' => $item['description'],
                 'user_first_name' => $user->getFirstName(),
-                'user_last_name' =>$user->getLastName(),
+                'user_last_name' => $user->getLastName(),
                 'user_id' => $user->getId(),
                 'created_at' => Carbon::parse($item['created_at'])->format('d/m/Y'),
                 'likes' => $item['likes'],
                 'dislikes' => $item['dislikes'],
-                'same_user' => ($user->getId() == $this->getUser()->getID())? true : false
+                'same_user' => ($user->getId() == $this->getUser()->getID()) ? true : false
             ];
         }
 
@@ -154,5 +154,38 @@ class HomeController extends AbstractController
         return new Response('Saved new product with id ' . $movie->getId());
     }
 
+    #[Route('/like/{movie_id}', name: 'movie_like')]
+    public function addLike(ManagerRegistry $doctrine, UserInterface $user,$movie_id): Response
+    {
+        $entityManager = $doctrine->getManager();
+
+        $movie = $doctrine->getRepository(Movie::class)->find(array('id' => $movie_id));
+        $vote = new Vote();
+        $vote->setName('Like');
+        $vote->setMovie($movie);
+        $vote->setUserId($user);
+        $entityManager->persist($vote);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Like added successfully! For movie '. $movie->getTitle());
+        return $this->redirectToRoute('app_home');
+    }
+
+    #[Route('/dislike/{movie_id}', name: 'movie_dislike')]
+    public function addDislike(ManagerRegistry $doctrine, UserInterface $user,$movie_id): Response
+    {
+        $entityManager = $doctrine->getManager();
+
+        $movie = $doctrine->getRepository(Movie::class)->find(array('id' => $movie_id));
+        $vote = new Vote();
+        $vote->setName('Dislike');
+        $vote->setMovie($movie);
+        $vote->setUserId($user);
+        $entityManager->persist($vote);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Dislike added successfully! For movie '. $movie->getTitle());
+        return $this->redirectToRoute('app_home');
+    }
 
 }
