@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Movie;
 use App\Entity\User;
 use App\Entity\Vote;
+use App\Form\Type\MovieFormType;
 use Carbon\Carbon;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,6 +43,7 @@ class HomeController extends AbstractController
             foreach ($votes as $key => $vote) {
 
                 if ($movie->getID() == $vote->getMovie()->getID()) {
+
 
                     if ($vote->getName() == 'Like') {
                         $i = $i + 1;
@@ -136,22 +139,34 @@ class HomeController extends AbstractController
         return new Response('Saved new Vote with id ' . $vote->getId());
     }
 
-    #[Route('/movie', name: 'create_movie')]
-    public function createMovie(ManagerRegistry $doctrine, UserInterface $user): Response
+    #[Route('/add-movie', name: 'new_movie')]
+    public function newMovie(Request $request,UserInterface $user,EntityManagerInterface $entityManager): Response
     {
-        $entityManager = $doctrine->getManager();
-
         $movie = new Movie();
-        $movie->setTitle('Keyboard');
-        $movie->setDescription('Ergonomic and stylish!');
-        $movie->setCreatedAt(Carbon::now());
-        $movie->setUser($user);
+        $form = $this->createForm(MovieFormType::class, $movie);
+        $form->handleRequest($request);
 
-        // tell Doctrine you want to (eventually) save the Product (no queries yet)
-        $entityManager->persist($movie);
-        $entityManager->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
 
-        return new Response('Saved new product with id ' . $movie->getId());
+            $movie->setUser($user);
+            $movie->setCreatedAt(Carbon::now());
+
+            $vote = new Vote();
+            $vote->setMovie($movie);
+            $vote->setName(0);
+            $vote->setUserId($user);
+
+            $entityManager->persist($vote);
+            $entityManager->persist($movie);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Movie added successfully with title '. $movie->getTitle());
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('movie/new.html.twig', [
+            'form' => $form,
+        ]);
     }
 
     #[Route('/like/{movie_id}', name: 'movie_like')]

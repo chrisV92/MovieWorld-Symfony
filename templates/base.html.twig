@@ -26,6 +26,11 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{{ path('app_home') }}">Home </a>
                 </li>
+                {% if app.user %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ path('new_movie') }}">Add new Movie </a>
+                </li>
+                {% endif %}
                 <li class="nav-item">
 
                     {% if app.user %}
