@@ -1,0 +1,9 @@
+api_movies:
+  path: /api/v1/movies
+  controller: App\Controller\HomeController::getApiMovies
+  methods: GET
+
+api_filtered_movies:
+  path: /api/v1/filters
+  controller: App\Controller\HomeController::getFilteredMoviesApi
+  methods: GET

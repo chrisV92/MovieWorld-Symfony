@@ -60,7 +60,8 @@ class HomeController extends AbstractController
                     'description' => $movie->getDescription(),
                     'likes' => $i,
                     'dislikes' => $j,
-                    'user' => $movie->getUser(),
+                    'user' => $movie->getUser()->getFirstName() ." ". $movie->getUser()->getLastName(),
+                    'user_id' => $movie->getUser()->getID() ,
                     'created_at' => $movie->getCreatedAt(),
                 ];
 
@@ -201,6 +202,49 @@ class HomeController extends AbstractController
 
         $this->addFlash('success', 'Dislike added successfully! For movie '. $movie->getTitle());
         return $this->redirectToRoute('app_home');
+    }
+
+    public function getApiMovies(ManagerRegistry $doctrine) : JsonResponse
+    {
+        $movie_list = $doctrine->getRepository(Movie::class)->findAll();
+
+        $votes = $doctrine->getRepository(Vote::class)->findAll();
+
+        $list = $this->GenerateList($movie_list, $votes);
+
+        return new JsonResponse($list);
+    }
+
+    public function getFilteredMoviesApi(ManagerRegistry $doctrine, Request $request): JsonResponse
+    {
+
+        $filter = ($request->query->has('filter')) ? $request->query->get('filter') : 'created_at';
+
+        $movie_list = $doctrine->getRepository(Movie::class)->findAll();
+        $votes = $doctrine->getRepository(Vote::class)->findAll();
+
+        $list = $this->GenerateList($movie_list, $votes);
+        $data = [];
+        foreach ($list as $key => $item) {
+            $user = $doctrine->getRepository(User::class)->find($item['user_id']);
+
+            $data[$key] = [
+                'id' => $item['id'],
+                'title' => $item['title'],
+                'description' => $item['description'],
+                'user_first_name' => $user->getFirstName(),
+                'user_last_name' => $user->getLastName(),
+                'user_id' => $user->getId(),
+                'created_at' => Carbon::parse($item['created_at'])->format('d/m/Y'),
+                'likes' => $item['likes'],
+                'dislikes' => $item['dislikes'],
+            ];
+        }
+
+        $key_array = array_column($data, $filter);
+        array_multisort($key_array, SORT_DESC, $data);
+
+        return new JsonResponse($data);
     }
 
 }

@@ -12,6 +12,7 @@
         "doctrine/doctrine-bundle": "^2.8",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.14",
+        "nelmio/cors-bundle": "^2.2",
         "nesbot/carbon": "^2.65",
         "sensio/framework-extra-bundle": "^6.2",
         "symfony/console": "6.2.*",
